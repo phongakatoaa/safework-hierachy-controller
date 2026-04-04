@@ -1,14 +1,15 @@
-﻿Safework Hierachy Controller
+﻿# CLAUDE.md
 
-## Guidelines
+This file provides guidance to Claude Code (claude.ai/code) when working with code in this repository.
 
-When building ollama API code, refer to [ollama.md](docs/ollama.md).
+See the root `CLAUDE.md` for full architecture and command reference.
 
-## Project Structure
+## OllamaSharp
 
-- `Program.cs` — ASP.NET Core minimal API. POST /assess endpoint accepts a hazard and returns a recommended control as JSON.
-- `appsettings.json` — Ollama address, model name, and server port configuration.
-- `controls.json` — Hierarchy of Controls definitions (IDs 1–7). Loaded at startup and embedded into the prompt.
-- `prompt.md` — System prompt template with `{{controls}}`, `{{hazard_title}}`, `{{hazard_description}}`, `{{risk_level}}`, `{{is_near_miss}}` placeholders.
-- `samples/` — Sample request and response JSON files for testing.
-- `docs/ollama.md` — OllamaSharp code snippets reference.
+When building Ollama API code, refer to [docs/ollama.md](docs/ollama.md) for current OllamaSharp code patterns.
+
+## Key files
+
+- `controls.json` — edit this to change control definitions; IDs must remain integers 1–7 and match what `prompt.md` references.
+- `prompt.md` — edit this to tune LLM behaviour. Placeholders: `{{controls}}`, `{{hazard_title}}`, `{{hazard_description}}`, `{{risk_level}}`, `{{is_near_miss}}`.
+- `samples/` — update `sample.request.json` and re-run the Node test script when adding new test cases.
