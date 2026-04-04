@@ -1,0 +1,44 @@
+[
+  {
+    "hazard_title": "Unsecured scaffolding plank at height",
+    "description": "A worker noticed a scaffolding plank on the 4th floor (approx. 12m) was unsecured at one end and could shift underfoot. No one was injured but a colleague nearly stepped on the unsecured end.",
+    "risk_level": "HIGH",
+    "is_near_miss": true
+  },
+  {
+    "hazard_title": "Solvent-based adhesive used in enclosed space",
+    "description": "Workers are applying solvent-based contact adhesive in a poorly ventilated basement area. Strong fumes are present and workers are reporting headaches. The chemical used has a high VOC content and is flammable.",
+    "risk_level": "HIGH",
+    "is_near_miss": false
+  },
+  {
+    "hazard_title": "Excessive noise from concrete cutting",
+    "description": "Concrete cutting work with a petrol-powered disc cutter is being performed daily on-site. Noise measurements near the operator reach 105 dB(A). Workers in adjacent areas are also exposed without adequate protection.",
+    "risk_level": "MEDIUM",
+    "is_near_miss": false
+  },
+  {
+    "hazard_title": "Wet concrete spillage on access walkway",
+    "description": "A small amount of wet concrete was spilled on a shared pedestrian walkway between two work zones. The area has not been marked or cleaned up. A worker slipped but did not fall.",
+    "risk_level": "MEDIUM",
+    "is_near_miss": true
+  },
+  {
+    "hazard_title": "Workers not wearing high-visibility vests in traffic zone",
+    "description": "Two subcontractor workers were observed working near an active vehicle access road without wearing high-visibility vests. The area has designated PPE requirements. No vehicle came close during the observation.",
+    "risk_level": "LOW",
+    "is_near_miss": false
+  },
+  {
+    "hazard_title": "Unguarded rotating shaft on concrete mixer",
+    "description": "The rotating drive shaft on a portable concrete mixer has had its guard removed and not replaced. Workers pass within arm's reach of the exposed rotating shaft during normal work activities.",
+    "risk_level": "HIGH",
+    "is_near_miss": false
+  },
+  {
+    "hazard_title": "Manual lifting of heavy precast panels",
+    "description": "Workers are manually attempting to position 80kg precast concrete panels due to the crane being unavailable. A worker strained their lower back but continued working. No mechanical lifting aid was used.",
+    "risk_level": "MEDIUM",
+    "is_near_miss": false
+  }
+]

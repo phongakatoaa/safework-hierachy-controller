@@ -1,0 +1,37 @@
+[
+  {
+    "id": 1,
+    "name": "Elimination",
+    "description": "The most effective control. Physically remove the hazard from the workplace entirely. This may involve redesigning the job, process, or equipment so the hazard no longer exists. Examples: removing a dangerous process, redesigning work at height to be performed at ground level, automating a hazardous task to remove human exposure, eliminating a toxic chemical from the process entirely."
+  },
+  {
+    "id": 2,
+    "name": "Substitution",
+    "description": "Replace the hazard with something less dangerous or less energetic. Reduce the magnitude of hazardous energy. Examples: substituting a toxic chemical with a non-hazardous or less hazardous alternative, using water-based instead of solvent-based products, reducing operating speed, force, amperage, pressure, temperature, or noise levels, replacing a heavy manual task with a lighter-weight process."
+  },
+  {
+    "id": 3,
+    "name": "Engineering Controls",
+    "description": "Isolate workers from the hazard using physical modifications to the environment, equipment, or process. Does not require ongoing worker behavior to be effective. Examples: ventilation and exhaust systems, machine guarding and barriers, sound enclosures, circuit breakers and interlocks, platforms and guard railing, lift tables and conveyors, fall arrest anchor points, blast shields, safety cages, two-hand controls, and emergency stop systems."
+  },
+  {
+    "id": 4,
+    "name": "Warnings",
+    "description": "Alert workers and others to the presence of hazards through visual and audible signals. Reduce the likelihood of inadvertent exposure by increasing hazard awareness. Examples: safety signs and labels, backup alarms, warning beepers and horns, flashing lights, floor markings and painted boundaries, barricades and caution tape, hazard communication labels on chemicals."
+  },
+  {
+    "id": 5,
+    "name": "Administrative Controls",
+    "description": "Change the way work is organized and performed to reduce exposure to hazards. Relies on consistent human behavior and management enforcement to be effective. Examples: written safe work procedures and job hazard analyses, worker training and competency assessments, job rotation to reduce duration of exposure, permit-to-work and lockout/tagout procedures, buddy systems, housekeeping schedules, limited entry to hazardous areas, and incident reporting protocols."
+  },
+  {
+    "id": 6,
+    "name": "Personal Protective Equipment",
+    "description": "Protect individual workers with equipment worn on the body. The least effective control — provides a barrier between the worker and the hazard but does not eliminate or reduce the hazard itself. Should always be used in combination with higher-level controls. Examples: safety glasses and goggles, hearing protection (earplugs, earmuffs), face shields, hard hats, safety harnesses and lanyards, cut-resistant gloves, steel-toed boots, high-visibility vests, and respirators."
+  },
+  {
+    "id": 7,
+    "name": "Auto-dispositioned",
+    "description": "The hazard has been automatically identified, assessed, and resolved by the system without requiring manual human intervention. Applied when the risk has been fully mitigated through automated system logic, sensors, or integrated safeguards that remove the need for further corrective action."
+  }
+]

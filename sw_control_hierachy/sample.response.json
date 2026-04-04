@@ -1,0 +1,93 @@
+[
+  {
+    "request": {
+      "hazard_title": "Unsecured scaffolding plank at height",
+      "description": "A worker noticed a scaffolding plank on the 4th floor (approx. 12m) was unsecured at one end and could shift underfoot. No one was injured but a colleague nearly stepped on the unsecured end.",
+      "risk_level": "HIGH",
+      "is_near_miss": true
+    },
+    "response": {
+      "control_id": 1,
+      "control_name": "Elimination",
+      "reason": "To address this high-risk hazard, the scaffolding plank should be redesigned or replaced to ensure secure anchoring at all ends. Given its location and height, any risk of unsecured planks poses a severe threat to worker safety. Immediate action is necessary to prevent potential falls from heights. This control prioritizes removing the hazard entirely by redesigning or replacing it with one that meets safety standards."
+    }
+  },
+  {
+    "request": {
+      "hazard_title": "Solvent-based adhesive used in enclosed space",
+      "description": "Workers are applying solvent-based contact adhesive in a poorly ventilated basement area. Strong fumes are present and workers are reporting headaches. The chemical used has a high VOC content and is flammable.",
+      "risk_level": "HIGH",
+      "is_near_miss": false
+    },
+    "response": {
+      "control_id": 2,
+      "control_name": "Substitution",
+      "reason": "Due to the high risk level and potential health impacts, substituting the solvent-based adhesive with a low-VOC or water-based alternative is essential. This will significantly reduce worker exposure to hazardous fumes and chemicals. Before making the switch, it's crucial to ensure the new adhesive meets the necessary performance standards for the specific application and that proper ventilation measures are in place."
+    }
+  },
+  {
+    "request": {
+      "hazard_title": "Excessive noise from concrete cutting",
+      "description": "Concrete cutting work with a petrol-powered disc cutter is being performed daily on-site. Noise measurements near the operator reach 105 dB(A). Workers in adjacent areas are also exposed without adequate protection.",
+      "risk_level": "MEDIUM",
+      "is_near_miss": false
+    },
+    "response": {
+      "control_id": 3,
+      "control_name": "Engineering Controls",
+      "reason": "An engineering control is necessary to reduce the noise level around the concrete cutting work area. A suitable solution would be to implement a sound enclosure or a machine guard specifically designed for the petrol-powered disc cutter, reducing the operational speed and minimizing the amount of sound emitted towards the adjacent areas."
+    }
+  },
+  {
+    "request": {
+      "hazard_title": "Wet concrete spillage on access walkway",
+      "description": "A small amount of wet concrete was spilled on a shared pedestrian walkway between two work zones. The area has not been marked or cleaned up. A worker slipped but did not fall.",
+      "risk_level": "MEDIUM",
+      "is_near_miss": true
+    },
+    "response": {
+      "control_id": 3,
+      "control_name": "Engineering Controls",
+      "reason": "Given the medium risk level and near miss status, I recommend installing a temporary barrier or containment system around the spill to prevent future slips. This can be as simple as placing cones, warning signs, or even creating a makeshift pathway with plywood sheets until the area is properly cleaned up. Since the spill was not immediately addressed after the near miss event, it's clear there needs to be an additional layer of control in place to ensure worker safety on this walkway."
+    }
+  },
+  {
+    "request": {
+      "hazard_title": "Workers not wearing high-visibility vests in traffic zone",
+      "description": "Two subcontractor workers were observed working near an active vehicle access road without wearing high-visibility vests. The area has designated PPE requirements. No vehicle came close during the observation.",
+      "risk_level": "LOW",
+      "is_near_miss": false
+    },
+    "response": {
+      "control_id": 6,
+      "control_name": "Personal Protective Equipment",
+      "reason": "While the risk level is low, it's crucial that workers comply with designated PPE requirements to ensure visibility in traffic zones. Although higher-level controls may not be necessary for this specific hazard due to its low risk level, implementing Personal Protective Equipment (in this case, high-visibility vests) ensures worker safety and adherence to regulations. Regular inspections should also be conducted to monitor compliance."
+    }
+  },
+  {
+    "request": {
+      "hazard_title": "Unguarded rotating shaft on concrete mixer",
+      "description": "The rotating drive shaft on a portable concrete mixer has had its guard removed and not replaced. Workers pass within arm's reach of the exposed rotating shaft during normal work activities.",
+      "risk_level": "HIGH",
+      "is_near_miss": false
+    },
+    "response": {
+      "control_id": 3,
+      "control_name": "Engineering Controls",
+      "reason": "Immediate action is required to protect workers from the high risk posed by the unguarded rotating shaft. Installing a suitable machine guard or barriers around the exposed shaft will isolate workers from the hazard and prevent exposure. This control can be implemented quickly, and it is feasible given the equipment's portable nature."
+    }
+  },
+  {
+    "request": {
+      "hazard_title": "Manual lifting of heavy precast panels",
+      "description": "Workers are manually attempting to position 80kg precast concrete panels due to the crane being unavailable. A worker strained their lower back but continued working. No mechanical lifting aid was used.",
+      "risk_level": "MEDIUM",
+      "is_near_miss": false
+    },
+    "response": {
+      "control_id": 3,
+      "control_name": "Engineering Controls",
+      "reason": "Given the hazard involves manual lifting of heavy precast panels, which resulted in a worker straining their lower back, an engineering control is necessary to prevent similar incidents. Installing mechanical lifting aids such as hoists or pulleys would effectively eliminate the need for manual lifting, reducing exposure to this medium-risk level hazard and aligning with a recommended higher-level control. Action should be taken to design and install suitable mechanical lifting equipment tailored to handle the weight of these panels."
+    }
+  }
+]
