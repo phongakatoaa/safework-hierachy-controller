@@ -3,4 +3,6 @@ obj/
 context/
 samples/
 **/*.user
-**/*.md
+context/**/*.md
+README.md
+CLAUDE.md
