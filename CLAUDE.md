@@ -4,16 +4,22 @@ This file provides guidance to Claude Code (claude.ai/code) when working with co
 
 ## Commands
 
-All commands run from `sw_control_hierachy/` (the project directory).
+```bash
+# Docker — start everything (Ollama + model pull + app)
+docker compose up
+
+# Docker — use a different model
+OLLAMA_MODEL=llama3.2 docker compose up
+
+# Docker — rebuild the app image after code changes
+docker compose up --build
+```
+
+Local development (from `sw_control_hierachy/`):
 
 ```bash
-# Build
 dotnet build
-
-# Run the HTTP server
 dotnet run
-
-# Restore packages
 dotnet restore
 ```
 
@@ -54,8 +60,17 @@ On startup, `Program.cs` reads `controls.json` and `prompt.md` from `AppContext.
 
 For OllamaSharp API patterns, refer to `sw_control_hierachy/context/ollama.md`. A new `Chat` instance is created per request (stateless — no conversation history is retained between API calls).
 
+### Docker setup
+
+`docker-compose.yml` at the repo root defines three services:
+- `ollama` — runs the Ollama inference server; health-checked before dependents start
+- `ollama-pull` — one-shot service that runs `ollama pull $OLLAMA_MODEL` against the ollama service, then exits; uses the shared `ollama_data` volume so the model is only downloaded once
+- `app` — the .NET app; starts only after `ollama-pull` completes successfully
+
+Config is injected via environment variables (`Ollama__Address`, `Ollama__Model`, `Server__Port`), which ASP.NET Core resolves over `appsettings.json`. The model is controlled by `OLLAMA_MODEL` in `.env` (gitignored, default `llama3.1`).
+
 ### Context folder
 
-`sw_control_hierachy/context/` contains reference material for Claude only — not served by the HTTP server and not copied to the build output:
+`sw_control_hierachy/context/` contains reference material for Claude only — not served by the HTTP server, not copied to build output, and excluded from the Docker image via `.dockerignore`:
 - `ollama.md` — OllamaSharp code snippets
 - `Hierarchy_of_Controls_02.01.23_form_508_2.pdf` — OSHA source document for control definitions

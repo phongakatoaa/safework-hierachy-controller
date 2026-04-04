@@ -28,7 +28,13 @@ The seven controls — from most to least effective — are:
 
 ## Dependencies
 
-### Runtime
+### Docker (recommended)
+
+| Dependency | Version |
+|------------|---------|
+| [Docker](https://docs.docker.com/get-docker/) + Compose | Latest |
+
+### Local development
 
 | Dependency | Version | Purpose |
 |------------|---------|---------|
@@ -46,28 +52,48 @@ The seven controls — from most to least effective — are:
 
 ## Setup
 
-### 1. Install Ollama
+### Option A — Docker (recommended)
 
-Download and install Ollama from [https://ollama.com](https://ollama.com), then pull the default model:
+```bash
+git clone https://github.com/phongakatoaa/safework-hierachy-controller.git
+cd safework-hierachy-controller
+docker compose up
+```
+
+On first run, Docker will pull the Ollama image and download the model (may take a few minutes depending on connection speed). Subsequent starts are instant as the model is cached in the `ollama_data` volume.
+
+To use a different model, set `OLLAMA_MODEL` before starting:
+
+```bash
+OLLAMA_MODEL=llama3.2 docker compose up
+```
+
+Or edit `.env` in the repo root:
+
+```
+OLLAMA_MODEL=llama3.2
+```
+
+Once running, the API is available at `http://localhost:5000` and the API docs at `http://localhost:5000/docs`.
+
+---
+
+### Option B — Local development
+
+#### 1. Install Ollama and pull the model
 
 ```bash
 ollama pull llama3.1
 ```
 
-Verify Ollama is running:
-
-```bash
-ollama list
-```
-
-### 2. Clone the repository
+#### 2. Clone the repository
 
 ```bash
 git clone https://github.com/phongakatoaa/safework-hierachy-controller.git
 cd safework-hierachy-controller
 ```
 
-### 3. Configure `appsettings.json`
+#### 3. Configure `appsettings.json`
 
 Edit `sw_control_hierachy/appsettings.json`:
 
@@ -83,11 +109,9 @@ Edit `sw_control_hierachy/appsettings.json`:
 }
 ```
 
-- **Address** — URL of your Ollama server (default: `http://localhost:11434`)
-- **Model** — Name of the Ollama model to use. Leave empty (`""`) to be prompted to select from available local models at startup.
-- **Port** — Port the HTTP server listens on (default: `5000`)
+- **Model** — Leave empty (`""`) to be prompted to select from available local models at startup.
 
-### 4. Run the server
+#### 4. Run the server
 
 ```bash
 cd sw_control_hierachy
@@ -246,11 +270,22 @@ curl -X POST http://localhost:5000/assess \
 ## Project Structure
 
 ```
-sw_control_hierachy/
-├── Program.cs              # ASP.NET Core minimal API server
-├── appsettings.json        # Ollama connection and server config
-├── controls.json           # Hierarchy of Controls definitions
-├── prompt.md               # System prompt template for the LLM
-├── sample.request.json     # Example test cases
-└── sample.response.json    # Captured responses for the test cases
+safework-hierachy-controller/
+├── docker-compose.yml              # Boots Ollama + model pull + app
+├── .env                            # Set OLLAMA_MODEL here (gitignored)
+└── sw_control_hierachy/
+    ├── Dockerfile                  # Multi-stage build (SDK → ASP.NET runtime)
+    ├── Program.cs                  # ASP.NET Core minimal API
+    ├── appsettings.json            # Ollama address, model, server port
+    ├── controls.json               # Hierarchy of Controls definitions (IDs 1–7)
+    ├── prompt.md                   # LLM system prompt template
+    ├── docs/
+    │   ├── api.html                # Swagger UI (served at /docs)
+    │   └── openapi.json            # OpenAPI 3.0 spec
+    ├── samples/
+    │   ├── sample.request.json     # Example test cases
+    │   └── sample.response.json    # Captured responses
+    └── context/                    # Reference material for Claude only (not served)
+        ├── ollama.md
+        └── Hierarchy_of_Controls_02.01.23_form_508_2.pdf
 ```
