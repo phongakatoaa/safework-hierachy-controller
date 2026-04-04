@@ -1,0 +1,226 @@
+{
+  "openapi": "3.0.3",
+  "info": {
+    "title": "Safework Hierarchy Controller",
+    "description": "Assesses workplace hazards and recommends corrective controls based on the OSHA Hierarchy of Controls framework. Powered by a locally-running Ollama LLM.",
+    "version": "1.0.0"
+  },
+  "servers": [
+    {
+      "url": "http://localhost:5000",
+      "description": "Local development server"
+    }
+  ],
+  "paths": {
+    "/assess": {
+      "post": {
+        "summary": "Assess a workplace hazard",
+        "description": "Accepts a reported workplace hazard and returns the recommended corrective control from the OSHA Hierarchy of Controls, along with a practical reason tailored to the specific hazard.",
+        "operationId": "assessHazard",
+        "requestBody": {
+          "required": true,
+          "content": {
+            "application/json": {
+              "schema": {
+                "$ref": "#/components/schemas/HazardRequest"
+              },
+              "examples": {
+                "high_risk_fall": {
+                  "summary": "High-risk fall hazard (near miss)",
+                  "value": {
+                    "hazard_title": "Unsecured scaffolding plank at height",
+                    "description": "A scaffolding plank on the 4th floor (approx. 12m) was unsecured at one end and could shift underfoot. A colleague nearly stepped on the unsecured end.",
+                    "risk_level": "HIGH",
+                    "is_near_miss": true
+                  }
+                },
+                "high_risk_chemical": {
+                  "summary": "High-risk chemical hazard",
+                  "value": {
+                    "hazard_title": "Solvent-based adhesive used in enclosed space",
+                    "description": "Workers are applying solvent-based contact adhesive in a poorly ventilated basement. Strong fumes are present and workers are reporting headaches.",
+                    "risk_level": "HIGH",
+                    "is_near_miss": false
+                  }
+                },
+                "medium_risk_noise": {
+                  "summary": "Medium-risk noise exposure",
+                  "value": {
+                    "hazard_title": "Excessive noise from concrete cutting",
+                    "description": "Concrete cutting with a petrol-powered disc cutter is performed daily. Noise near the operator reaches 105 dB(A).",
+                    "risk_level": "MEDIUM",
+                    "is_near_miss": false
+                  }
+                },
+                "low_risk_ppe": {
+                  "summary": "Low-risk PPE non-compliance",
+                  "value": {
+                    "hazard_title": "Workers not wearing high-visibility vests in traffic zone",
+                    "description": "Two subcontractor workers were observed near an active vehicle access road without high-visibility vests.",
+                    "risk_level": "LOW",
+                    "is_near_miss": false
+                  }
+                }
+              }
+            }
+          }
+        },
+        "responses": {
+          "200": {
+            "description": "Hazard successfully assessed. Returns the recommended control.",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/AssessmentResponse"
+                },
+                "examples": {
+                  "elimination": {
+                    "summary": "Elimination recommended",
+                    "value": {
+                      "control_id": 1,
+                      "control_name": "Elimination",
+                      "reason": "The scaffolding plank should be redesigned or replaced to ensure secure anchoring at all ends. Immediate action is necessary to prevent potential falls from heights."
+                    }
+                  },
+                  "substitution": {
+                    "summary": "Substitution recommended",
+                    "value": {
+                      "control_id": 2,
+                      "control_name": "Substitution",
+                      "reason": "Substituting the solvent-based adhesive with a low-VOC or water-based alternative will significantly reduce worker exposure to hazardous fumes."
+                    }
+                  },
+                  "engineering": {
+                    "summary": "Engineering Controls recommended",
+                    "value": {
+                      "control_id": 3,
+                      "control_name": "Engineering Controls",
+                      "reason": "A sound enclosure or machine guard should be installed on the disc cutter to reduce noise emission to safe levels for both the operator and adjacent workers."
+                    }
+                  },
+                  "ppe": {
+                    "summary": "PPE recommended",
+                    "value": {
+                      "control_id": 6,
+                      "control_name": "Personal Protective Equipment",
+                      "reason": "Workers must comply with designated PPE requirements and wear high-visibility vests at all times in the traffic zone."
+                    }
+                  }
+                }
+              }
+            }
+          },
+          "400": {
+            "description": "Invalid request — missing or invalid fields.",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ErrorResponse"
+                },
+                "examples": {
+                  "missing_title": {
+                    "value": { "error": "hazard_title is required." }
+                  },
+                  "invalid_risk_level": {
+                    "value": { "error": "risk_level must be LOW, MEDIUM, or HIGH." }
+                  }
+                }
+              }
+            }
+          },
+          "502": {
+            "description": "Ollama returned a response that could not be parsed as JSON.",
+            "content": {
+              "application/problem+json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ProblemDetails"
+                }
+              }
+            }
+          },
+          "503": {
+            "description": "Could not communicate with the Ollama server.",
+            "content": {
+              "application/problem+json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ProblemDetails"
+                }
+              }
+            }
+          }
+        }
+      }
+    }
+  },
+  "components": {
+    "schemas": {
+      "HazardRequest": {
+        "type": "object",
+        "required": ["hazard_title", "description", "risk_level", "is_near_miss"],
+        "properties": {
+          "hazard_title": {
+            "type": "string",
+            "description": "Short title identifying the hazard.",
+            "example": "Unsecured scaffolding plank at height"
+          },
+          "description": {
+            "type": "string",
+            "description": "Detailed description of the hazard, including the circumstances and environment.",
+            "example": "A scaffolding plank on the 4th floor was unsecured at one end and could shift underfoot."
+          },
+          "risk_level": {
+            "type": "string",
+            "enum": ["LOW", "MEDIUM", "HIGH"],
+            "description": "Severity of the hazard. HIGH hazards prioritise Elimination or Engineering Controls.",
+            "example": "HIGH"
+          },
+          "is_near_miss": {
+            "type": "boolean",
+            "description": "Whether this is a near miss — an unplanned event that did not result in injury or damage but had the potential to do so.",
+            "example": true
+          }
+        }
+      },
+      "AssessmentResponse": {
+        "type": "object",
+        "properties": {
+          "control_id": {
+            "type": "integer",
+            "description": "ID of the recommended control (1 = Elimination, 7 = Auto-dispositioned).",
+            "minimum": 1,
+            "maximum": 7,
+            "example": 3
+          },
+          "control_name": {
+            "type": "string",
+            "description": "Name of the recommended control.",
+            "example": "Engineering Controls"
+          },
+          "reason": {
+            "type": "string",
+            "description": "Practical explanation for the recommendation, tailored to the specific hazard.",
+            "example": "A sound enclosure should be installed on the disc cutter to reduce noise to safe levels."
+          }
+        }
+      },
+      "ErrorResponse": {
+        "type": "object",
+        "properties": {
+          "error": {
+            "type": "string",
+            "example": "risk_level must be LOW, MEDIUM, or HIGH."
+          }
+        }
+      },
+      "ProblemDetails": {
+        "type": "object",
+        "properties": {
+          "type": { "type": "string" },
+          "title": { "type": "string" },
+          "status": { "type": "integer" },
+          "detail": { "type": "string" }
+        }
+      }
+    }
+  }
+}
