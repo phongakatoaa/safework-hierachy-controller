@@ -6,7 +6,11 @@ See the root `CLAUDE.md` for full architecture and command reference.
 
 ## OllamaSharp
 
-When building Ollama API code, refer to [docs/ollama.md](docs/ollama.md) for current OllamaSharp code patterns.
+When building Ollama API code, refer to [context/ollama.md](context/ollama.md) for current OllamaSharp code patterns.
+
+The `context/` folder contains reference material for Claude only — it is not served by the HTTP server:
+- `context/ollama.md` — OllamaSharp code snippets
+- `context/Hierarchy_of_Controls_02.01.23_form_508_2.pdf` — OSHA Hierarchy of Controls source document
 
 ## Key files
 

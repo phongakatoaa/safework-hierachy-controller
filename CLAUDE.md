@@ -52,4 +52,10 @@ On startup, `Program.cs` reads `controls.json` and `prompt.md` from `AppContext.
 
 ### OllamaSharp usage
 
-For OllamaSharp API patterns, refer to `sw_control_hierachy/docs/ollama.md`. A new `Chat` instance is created per request (stateless — no conversation history is retained between API calls).
+For OllamaSharp API patterns, refer to `sw_control_hierachy/context/ollama.md`. A new `Chat` instance is created per request (stateless — no conversation history is retained between API calls).
+
+### Context folder
+
+`sw_control_hierachy/context/` contains reference material for Claude only — not served by the HTTP server and not copied to the build output:
+- `ollama.md` — OllamaSharp code snippets
+- `Hierarchy_of_Controls_02.01.23_form_508_2.pdf` — OSHA source document for control definitions
