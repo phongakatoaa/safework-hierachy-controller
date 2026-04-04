@@ -1,6 +1,7 @@
 using System.Text;
 using System.Text.Json;
 using System.Text.Json.Serialization;
+using Microsoft.Extensions.FileProviders;
 using OllamaSharp;
 
 var builder = WebApplication.CreateBuilder(args);
@@ -44,6 +45,14 @@ Console.WriteLine($"Port   : {serverPort}");
 
 builder.WebHost.UseUrls($"http://0.0.0.0:{serverPort}");
 var app = builder.Build();
+
+app.UseStaticFiles(new StaticFileOptions
+{
+    FileProvider = new PhysicalFileProvider(Path.Combine(AppContext.BaseDirectory, "docs")),
+    RequestPath = "/docs"
+});
+
+app.MapGet("/docs", () => Results.Redirect("/docs/api.html"));
 
 app.MapPost("/assess", async (HazardRequest request) =>
 {
