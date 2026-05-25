@@ -1,8 +1,9 @@
 using System.Text;
 using System.Text.Json;
-using System.Text.Json.Serialization;
+using Microsoft.EntityFrameworkCore;
 using Microsoft.Extensions.FileProviders;
 using OllamaSharp;
+using sw_control_hierachy.Data;
 
 var builder = WebApplication.CreateBuilder(args);
 var config = builder.Configuration;
@@ -14,15 +15,11 @@ var serverPort = config["Server:Port"] ?? "5000";
 // Load controls and prompt at startup
 var basePath = AppContext.BaseDirectory;
 
-var controlsJson = await File.ReadAllTextAsync(Path.Combine(basePath, "controls.json"));
-var controls = JsonSerializer.Deserialize<List<ControlDefinition>>(controlsJson)!;
-
 var promptTemplate = await File.ReadAllTextAsync(Path.Combine(basePath, "prompt.md"));
-var controlsText = string.Join("\n\n", controls.Select(c => $"{c.Id}. {c.Name}: {c.Description}"));
-var promptWithControls = promptTemplate.Replace("{{controls}}", controlsText);
 
 // Setup Ollama
-var ollama = new OllamaApiClient(new Uri(ollamaAddress));
+var httpClient = new HttpClient { BaseAddress = new Uri(ollamaAddress), Timeout = TimeSpan.FromMinutes(10) };
+var ollama = new OllamaApiClient(httpClient);
 
 if (!string.IsNullOrWhiteSpace(modelFromConfig))
 {
@@ -43,33 +40,53 @@ Console.WriteLine($"Ollama : {ollamaAddress}");
 Console.WriteLine($"Model  : {ollama.SelectedModel}");
 Console.WriteLine($"Port   : {serverPort}");
 
+builder.Services.AddDbContext<SafeworkDbContext>(options =>
+    options.UseSqlServer(config.GetConnectionString("Safework")));
+
+builder.Services.AddCors(options =>
+{
+    options.AddDefaultPolicy(policy =>
+        policy.AllowAnyOrigin().AllowAnyMethod().AllowAnyHeader());
+});
+
 builder.WebHost.UseUrls($"http://0.0.0.0:{serverPort}");
 var app = builder.Build();
 
+app.UseCors();
+
 app.UseStaticFiles(new StaticFileOptions
 {
-    FileProvider = new PhysicalFileProvider(Path.Combine(AppContext.BaseDirectory, "docs")),
+    FileProvider = new PhysicalFileProvider(Path.Combine(AppContext.BaseDirectory, "Docs")),
     RequestPath = "/docs"
 });
 
 app.MapGet("/docs", () => Results.Redirect("/docs/api.html"));
 
-app.MapPost("/assess", async (HazardRequest request) =>
+app.MapPost("/assess/calog/{id:int}", async (int id, SafeworkDbContext db) =>
 {
-    if (string.IsNullOrWhiteSpace(request.HazardTitle))
-        return Results.BadRequest(new { error = "hazard_title is required." });
-    if (string.IsNullOrWhiteSpace(request.Description))
-        return Results.BadRequest(new { error = "description is required." });
+    var calog = await db.Calogs.FirstOrDefaultAsync(c => c.CalogId == id);
+    if (calog is null)
+        return Results.NotFound(new { error = $"CALog {id} not found." });
 
-    var validLevels = new[] { "LOW", "MEDIUM", "HIGH" };
-    if (!validLevels.Contains(request.RiskLevel?.ToUpperInvariant()))
-        return Results.BadRequest(new { error = "risk_level must be LOW, MEDIUM, or HIGH." });
+    var risk = await db.Carisks.FirstOrDefaultAsync(r => r.CariskId == calog.CariskId);
+    var currentControl = calog.CacontrolId.HasValue
+        ? await db.Cacontrols.FirstOrDefaultAsync(c => c.CacontrolId == calog.CacontrolId.Value)
+        : null;
 
-    var fullPrompt = promptWithControls
-        .Replace("{{hazard_title}}", request.HazardTitle)
-        .Replace("{{hazard_description}}", request.Description)
-        .Replace("{{risk_level}}", request.RiskLevel!.ToUpperInvariant())
-        .Replace("{{is_near_miss}}", request.IsNearMiss ? "Yes" : "No");
+    // Build controls list from database
+    var dbControls = await db.Cacontrols.Where(c => c.Enabled).OrderBy(c => c.OrderId).ToListAsync();
+    var dbControlsText = string.Join("\n\n", dbControls.Select(c => $"{c.CacontrolId}. {c.Control}: {c.Description}"));
+
+    var riskLevel = risk?.Risk?.ToUpperInvariant() ?? "MEDIUM";
+
+    var fullPrompt = promptTemplate
+        .Replace("{{controls}}", dbControlsText)
+        .Replace("{{current_status}}", calog.CurrentStatus ?? "Unknown")
+        .Replace("{{hazard_description}}", calog.Description ?? "No description")
+        .Replace("{{risk_level}}", riskLevel)
+        .Replace("{{is_near_miss}}", calog.IsNearMiss == true ? "Yes" : "No");
+
+    app.Logger.LogDebug("Full prompt for CALog {CalogId}:\n{FullPrompt}", id, fullPrompt);
 
     try
     {
@@ -80,8 +97,31 @@ app.MapPost("/assess", async (HazardRequest request) =>
 
         var raw = sb.ToString().Trim();
         var jsonText = ExtractJson(raw);
-        var parsed = JsonSerializer.Deserialize<JsonElement>(jsonText);
-        return Results.Ok(parsed);
+        var recommendation = JsonSerializer.Deserialize<JsonElement>(jsonText);
+
+        return Results.Ok(new
+        {
+            calog = new
+            {
+                calog.CalogId,
+                calog.Description,
+                calog.CurrentStatus,
+                calog.IsNearMiss,
+                Risk = risk is null ? null : new
+                {
+                    risk.CariskId,
+                    risk.Risk,
+                    risk.ColorCode
+                },
+                CurrentControl = currentControl is null ? null : new
+                {
+                    currentControl.CacontrolId,
+                    currentControl.Control,
+                    currentControl.Description
+                }
+            },
+            recommendation
+        });
     }
     catch (JsonException ex)
     {
@@ -106,15 +146,3 @@ static string ExtractJson(string text)
     return start >= 0 && end > start ? text[start..(end + 1)] : text;
 }
 
-record ControlDefinition(
-    [property: JsonPropertyName("id")] int Id,
-    [property: JsonPropertyName("name")] string Name,
-    [property: JsonPropertyName("description")] string Description
-);
-
-record HazardRequest(
-    [property: JsonPropertyName("hazard_title")] string HazardTitle,
-    [property: JsonPropertyName("description")] string Description,
-    [property: JsonPropertyName("risk_level")] string? RiskLevel,
-    [property: JsonPropertyName("is_near_miss")] bool IsNearMiss
-);

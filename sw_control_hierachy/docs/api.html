@@ -18,8 +18,8 @@
       "openapi": "3.0.3",
       "info": {
         "title": "Safework Hierarchy Controller",
-        "description": "Assesses workplace hazards and recommends corrective controls based on the OSHA Hierarchy of Controls framework. Powered by a locally-running Ollama LLM.\n\n## Hierarchy of Controls\n\n| ID | Control | Effectiveness |\n|----|---------|---------------|\n| 1 | Elimination | Highest |\n| 2 | Substitution | |\n| 3 | Engineering Controls | |\n| 4 | Warnings | |\n| 5 | Administrative Controls | |\n| 6 | Personal Protective Equipment | |\n| 7 | Auto-dispositioned | Lowest |\n\nThe model always recommends the highest feasible control level given the hazard's risk level and near miss status.",
-        "version": "1.0.0"
+        "description": "Assesses workplace hazards from the Safework CALog database and recommends corrective controls based on the OSHA Hierarchy of Controls framework. Powered by a locally-running Ollama LLM.",
+        "version": "2.0.0"
       },
       "servers": [
         {
@@ -28,108 +28,64 @@
         }
       ],
       "paths": {
-        "/assess": {
+        "/assess/calog/{id}": {
           "post": {
-            "summary": "Assess a workplace hazard",
-            "description": "Accepts a reported workplace hazard and returns the recommended corrective control from the OSHA Hierarchy of Controls, along with a practical reason tailored to the specific hazard.",
-            "operationId": "assessHazard",
-            "requestBody": {
-              "required": true,
-              "content": {
-                "application/json": {
-                  "schema": { "$ref": "#/components/schemas/HazardRequest" },
-                  "examples": {
-                    "high_risk_fall": {
-                      "summary": "High-risk fall hazard (near miss)",
-                      "value": {
-                        "hazard_title": "Unsecured scaffolding plank at height",
-                        "description": "A scaffolding plank on the 4th floor (approx. 12m) was unsecured at one end and could shift underfoot. A colleague nearly stepped on the unsecured end.",
-                        "risk_level": "HIGH",
-                        "is_near_miss": true
-                      }
-                    },
-                    "high_risk_chemical": {
-                      "summary": "High-risk chemical hazard",
-                      "value": {
-                        "hazard_title": "Solvent-based adhesive used in enclosed space",
-                        "description": "Workers are applying solvent-based contact adhesive in a poorly ventilated basement. Strong fumes are present and workers are reporting headaches.",
-                        "risk_level": "HIGH",
-                        "is_near_miss": false
-                      }
-                    },
-                    "medium_risk_noise": {
-                      "summary": "Medium-risk noise exposure",
-                      "value": {
-                        "hazard_title": "Excessive noise from concrete cutting",
-                        "description": "Concrete cutting with a petrol-powered disc cutter is performed daily. Noise near the operator reaches 105 dB(A). Workers in adjacent areas are also exposed.",
-                        "risk_level": "MEDIUM",
-                        "is_near_miss": false
-                      }
-                    },
-                    "low_risk_ppe": {
-                      "summary": "Low-risk PPE non-compliance",
-                      "value": {
-                        "hazard_title": "Workers not wearing high-visibility vests in traffic zone",
-                        "description": "Two subcontractor workers were observed near an active vehicle access road without high-visibility vests. The area has designated PPE requirements.",
-                        "risk_level": "LOW",
-                        "is_near_miss": false
-                      }
-                    }
-                  }
-                }
+            "summary": "Assess a CALog hazard entry",
+            "description": "Fetches a corrective-action log entry from the Safework database, sends its details to the Ollama LLM, and returns both the CALog data and the recommended control from the OSHA Hierarchy of Controls.",
+            "operationId": "assessCalog",
+            "parameters": [
+              {
+                "name": "id",
+                "in": "path",
+                "required": true,
+                "schema": { "type": "integer" },
+                "description": "The CALog ID to assess."
               }
-            },
+            ],
             "responses": {
               "200": {
-                "description": "Hazard successfully assessed. Returns the recommended control.",
+                "description": "CALog entry assessed successfully.",
                 "content": {
                   "application/json": {
-                    "schema": { "$ref": "#/components/schemas/AssessmentResponse" },
+                    "schema": { "$ref": "#/components/schemas/AssessCalogResponse" },
                     "examples": {
-                      "elimination": {
-                        "summary": "Elimination recommended",
+                      "example": {
+                        "summary": "Successful assessment",
                         "value": {
-                          "control_id": 1,
-                          "control_name": "Elimination",
-                          "reason": "The scaffolding plank should be redesigned or replaced to ensure secure anchoring at all ends. Immediate action is necessary to prevent potential falls from heights."
-                        }
-                      },
-                      "substitution": {
-                        "summary": "Substitution recommended",
-                        "value": {
-                          "control_id": 2,
-                          "control_name": "Substitution",
-                          "reason": "Substituting the solvent-based adhesive with a low-VOC or water-based alternative will significantly reduce worker exposure to hazardous fumes."
-                        }
-                      },
-                      "engineering": {
-                        "summary": "Engineering Controls recommended",
-                        "value": {
-                          "control_id": 3,
-                          "control_name": "Engineering Controls",
-                          "reason": "A sound enclosure or machine guard should be installed on the disc cutter to reduce noise emission to safe levels for both the operator and adjacent workers."
-                        }
-                      },
-                      "ppe": {
-                        "summary": "PPE recommended",
-                        "value": {
-                          "control_id": 6,
-                          "control_name": "Personal Protective Equipment",
-                          "reason": "Workers must comply with designated PPE requirements and wear high-visibility vests at all times in the traffic zone."
+                          "calog": {
+                            "calogId": 1234,
+                            "description": "Loose guardrail on mezzanine level",
+                            "currentStatus": "Open",
+                            "isNearMiss": true,
+                            "risk": {
+                              "cariskId": 3,
+                              "risk": "High",
+                              "colorCode": "#FF0000"
+                            },
+                            "currentControl": {
+                              "cacontrolId": 6,
+                              "control": "Personal Protective Equipment",
+                              "description": "Use of PPE to reduce exposure to hazards."
+                            }
+                          },
+                          "recommendation": {
+                            "control_id": 3,
+                            "control_name": "Engineering Controls",
+                            "reason": "The loose guardrail should be re-secured or replaced with a fixed barrier to eliminate the fall hazard at the mezzanine level."
+                          }
                         }
                       }
                     }
                   }
                 }
               },
-              "400": {
-                "description": "Invalid request — missing or invalid fields.",
+              "404": {
+                "description": "CALog entry not found.",
                 "content": {
                   "application/json": {
                     "schema": { "$ref": "#/components/schemas/ErrorResponse" },
                     "examples": {
-                      "missing_title": { "value": { "error": "hazard_title is required." } },
-                      "invalid_risk_level": { "value": { "error": "risk_level must be LOW, MEDIUM, or HIGH." } }
+                      "not_found": { "value": { "error": "CALog 999 not found." } }
                     }
                   }
                 }
@@ -156,62 +112,52 @@
       },
       "components": {
         "schemas": {
-          "HazardRequest": {
+          "AssessCalogResponse": {
             "type": "object",
-            "required": ["hazard_title", "description", "risk_level", "is_near_miss"],
             "properties": {
-              "hazard_title": {
-                "type": "string",
-                "description": "Short title identifying the hazard.",
-                "example": "Unsecured scaffolding plank at height"
-              },
-              "description": {
-                "type": "string",
-                "description": "Detailed description of the hazard, including the circumstances and environment.",
-                "example": "A scaffolding plank on the 4th floor was unsecured at one end and could shift underfoot."
-              },
-              "risk_level": {
-                "type": "string",
-                "enum": ["LOW", "MEDIUM", "HIGH"],
-                "description": "Severity of the hazard. HIGH hazards prioritise Elimination or Engineering Controls.",
-                "example": "HIGH"
-              },
-              "is_near_miss": {
-                "type": "boolean",
-                "description": "Whether this is a near miss — an unplanned event that did not result in injury or damage but had the potential to do so.",
-                "example": true
-              }
+              "calog": { "$ref": "#/components/schemas/CalogSummary" },
+              "recommendation": { "$ref": "#/components/schemas/Recommendation" }
             }
           },
-          "AssessmentResponse": {
+          "CalogSummary": {
             "type": "object",
             "properties": {
-              "control_id": {
-                "type": "integer",
-                "description": "ID of the recommended control (1 = Elimination through 7 = Auto-dispositioned).",
-                "minimum": 1,
-                "maximum": 7,
-                "example": 3
-              },
-              "control_name": {
-                "type": "string",
-                "description": "Name of the recommended control.",
-                "example": "Engineering Controls"
-              },
-              "reason": {
-                "type": "string",
-                "description": "Practical explanation for the recommendation, tailored to the specific hazard.",
-                "example": "A sound enclosure should be installed on the disc cutter to reduce noise to safe levels."
-              }
+              "calogId": { "type": "integer", "example": 1234 },
+              "description": { "type": "string", "nullable": true, "example": "Loose guardrail on mezzanine level" },
+              "currentStatus": { "type": "string", "nullable": true, "example": "Open" },
+              "isNearMiss": { "type": "boolean", "nullable": true },
+              "risk": { "nullable": true, "$ref": "#/components/schemas/RiskInfo" },
+              "currentControl": { "nullable": true, "$ref": "#/components/schemas/ControlInfo" }
+            }
+          },
+          "RiskInfo": {
+            "type": "object",
+            "properties": {
+              "cariskId": { "type": "integer", "example": 3 },
+              "risk": { "type": "string", "example": "High" },
+              "colorCode": { "type": "string", "example": "#FF0000" }
+            }
+          },
+          "ControlInfo": {
+            "type": "object",
+            "properties": {
+              "cacontrolId": { "type": "integer", "example": 6 },
+              "control": { "type": "string", "example": "Personal Protective Equipment" },
+              "description": { "type": "string", "example": "Use of PPE to reduce exposure to hazards." }
+            }
+          },
+          "Recommendation": {
+            "type": "object",
+            "properties": {
+              "control_id": { "type": "integer", "description": "ID of the recommended control.", "example": 3 },
+              "control_name": { "type": "string", "description": "Name of the recommended control.", "example": "Engineering Controls" },
+              "reason": { "type": "string", "description": "Practical explanation for the recommendation, tailored to the specific hazard.", "example": "The loose guardrail should be re-secured or replaced with a fixed barrier to eliminate the fall hazard." }
             }
           },
           "ErrorResponse": {
             "type": "object",
             "properties": {
-              "error": {
-                "type": "string",
-                "example": "risk_level must be LOW, MEDIUM, or HIGH."
-              }
+              "error": { "type": "string", "example": "CALog 999 not found." }
             }
           },
           "ProblemDetails": {

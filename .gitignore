@@ -427,3 +427,5 @@ FodyWeavers.xsd
 *.msm
 *.msp
 .env
+.idea/
+.claude/
