@@ -15,5 +15,5 @@ The `Context/` folder contains reference material for Claude only — it is not 
 ## Key files
 
 - `controls.json` — edit this to change control definitions; IDs must remain integers 1–7 and match what `prompt.md` references.
-- `prompt.md` — edit this to tune LLM behaviour. Placeholders: `{{controls}}`, `{{current_status}}`, `{{hazard_description}}`, `{{risk_level}}`, `{{is_near_miss}}`.
+- `prompt.md` — edit this to tune LLM behaviour. Placeholders: `{{controls}}`, `{{activity}}`, `{{hazard_description}}`, `{{risk_level}}`, `{{is_near_miss}}`.
 - `Samples/` — update `sample.request.json` and re-run the Node test script when adding new test cases.

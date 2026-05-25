@@ -1,4 +1,4 @@
-﻿using System;
+using System;
 using System.Collections.Generic;
 using Microsoft.EntityFrameworkCore;
 using sw_control_hierachy.Models;
@@ -12,6 +12,8 @@ public partial class SafeworkDbContext : DbContext
     {
     }
 
+    public virtual DbSet<Activity> Activities { get; set; }
+
     public virtual DbSet<Cacontrol> Cacontrols { get; set; }
 
     public virtual DbSet<Calog> Calogs { get; set; }
@@ -20,6 +22,21 @@ public partial class SafeworkDbContext : DbContext
 
     protected override void OnModelCreating(ModelBuilder modelBuilder)
     {
+        modelBuilder.Entity<Activity>(entity =>
+        {
+            entity.HasKey(e => e.ActivityId).HasName("PK_tblActivity");
+
+            entity.ToTable("Activity", "dbo", tb =>
+                {
+                    tb.HasTrigger("TRI_ACTIVITY");
+                    tb.HasTrigger("TRI_DICTIONARY_ACTIVITY");
+                });
+
+            entity.Property(e => e.ActivityId).HasColumnName("ActivityID");
+            entity.Property(e => e.ActivityName).HasMaxLength(200);
+            entity.Property(e => e.Enabled).HasColumnName("enabled");
+        });
+
         modelBuilder.Entity<Cacontrol>(entity =>
         {
             entity.ToTable("CAControl", "dbo", tb => tb.HasTrigger("TRI_DICTIONARY_CA_CONTROL"));

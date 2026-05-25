@@ -41,8 +41,11 @@
                       "calog": {
                         "calogId": 1234,
                         "description": "Loose guardrail on mezzanine level",
-                        "currentStatus": "Open",
                         "isNearMiss": true,
+                        "activity": {
+                          "activityId": 5,
+                          "activityName": "Scaffolding"
+                        },
                         "risk": {
                           "cariskId": 3,
                           "risk": "High",
@@ -116,8 +119,11 @@
         "properties": {
           "calogId": { "type": "integer", "example": 1234 },
           "description": { "type": "string", "nullable": true, "example": "Loose guardrail on mezzanine level" },
-          "currentStatus": { "type": "string", "nullable": true, "example": "Open" },
           "isNearMiss": { "type": "boolean", "nullable": true },
+          "activity": {
+            "nullable": true,
+            "$ref": "#/components/schemas/ActivityInfo"
+          },
           "risk": {
             "nullable": true,
             "$ref": "#/components/schemas/RiskInfo"
@@ -126,6 +132,13 @@
             "nullable": true,
             "$ref": "#/components/schemas/ControlInfo"
           }
+        }
+      },
+      "ActivityInfo": {
+        "type": "object",
+        "properties": {
+          "activityId": { "type": "integer", "example": 5 },
+          "activityName": { "type": "string", "example": "Scaffolding" }
         }
       },
       "RiskInfo": {

@@ -69,6 +69,7 @@ app.MapPost("/assess/calog/{id:int}", async (int id, SafeworkDbContext db) =>
         return Results.NotFound(new { error = $"CALog {id} not found." });
 
     var risk = await db.Carisks.FirstOrDefaultAsync(r => r.CariskId == calog.CariskId);
+    var activity = await db.Activities.FirstOrDefaultAsync(a => a.ActivityId == calog.ActivityId);
     var currentControl = calog.CacontrolId.HasValue
         ? await db.Cacontrols.FirstOrDefaultAsync(c => c.CacontrolId == calog.CacontrolId.Value)
         : null;
@@ -81,7 +82,7 @@ app.MapPost("/assess/calog/{id:int}", async (int id, SafeworkDbContext db) =>
 
     var fullPrompt = promptTemplate
         .Replace("{{controls}}", dbControlsText)
-        .Replace("{{current_status}}", calog.CurrentStatus ?? "Unknown")
+        .Replace("{{activity}}", activity?.ActivityName ?? "Unknown")
         .Replace("{{hazard_description}}", calog.Description ?? "No description")
         .Replace("{{risk_level}}", riskLevel)
         .Replace("{{is_near_miss}}", calog.IsNearMiss == true ? "Yes" : "No");
@@ -105,8 +106,12 @@ app.MapPost("/assess/calog/{id:int}", async (int id, SafeworkDbContext db) =>
             {
                 calog.CalogId,
                 calog.Description,
-                calog.CurrentStatus,
                 calog.IsNearMiss,
+                Activity = activity is null ? null : new
+                {
+                    activity.ActivityId,
+                    activity.ActivityName
+                },
                 Risk = risk is null ? null : new
                 {
                     risk.CariskId,

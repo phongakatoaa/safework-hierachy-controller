@@ -8,7 +8,7 @@ An HTTP API service that uses a locally-hosted Ollama LLM to assess workplace ha
 
 Given a CALog entry ID, the service:
 
-1. Fetches the hazard record (description, status, near miss flag) and its associated risk level from the Safework database
+1. Fetches the hazard record (description, activity, near miss flag) and its associated risk level from the Safework database
 2. Loads all available controls from the CAControl table
 3. Builds a system prompt embedding the controls and hazard details
 4. Sends the prompt to a locally-running Ollama model
@@ -103,7 +103,7 @@ Edit `sw_control_hierachy/appsettings.json`:
 }
 ```
 
-- **ConnectionStrings:Safework** — Connection string to the Safework SQL Server database containing CALog, CARisk, and CAControl tables.
+- **ConnectionStrings:Safework** — Connection string to the Safework SQL Server database containing CALog, Activity, CARisk, and CAControl tables.
 - **Model** — Leave empty (`""`) to auto-select the first available local model at startup.
 
 #### 4. Run the server
@@ -143,8 +143,11 @@ Fetches a CALog entry from the database, sends it to the Ollama LLM for assessme
   "calog": {
     "calogId": 1234,
     "description": "Loose guardrail on mezzanine level",
-    "currentStatus": "Open",
     "isNearMiss": true,
+    "activity": {
+      "activityId": 5,
+      "activityName": "Scaffolding"
+    },
     "risk": {
       "cariskId": 3,
       "risk": "High",
@@ -197,6 +200,7 @@ safework-hierachy-controller/
     ├── Data/
     │   └── SafeworkDbContext.cs     # EF Core DbContext for Safework database
     ├── Models/
+    │   ├── Activity.cs             # Activity entity (hazard activity type)
     │   ├── CALog.cs                # CALog entity (corrective action log)
     │   ├── CARisk.cs               # CARisk entity (risk levels)
     │   └── CAControl.cs            # CAControl entity (hierarchy of controls)

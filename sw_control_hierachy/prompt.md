@@ -9,7 +9,7 @@ The following controls are listed from most preferred (highest effectiveness) to
 {{controls}}
 
 ## Assessment Guidelines
-- Analyze the hazard current status, description, risk level, and near miss status together.
+- Analyze the hazard activity, description, risk level, and near miss status together.
 - Near miss events indicate the hazard has the potential to cause serious harm — treat them with urgency and prioritize higher-level controls.
 - HIGH risk level hazards must prioritize Elimination, Substitution, or Engineering Controls where at all feasible.
 - MEDIUM risk level hazards should aim for Engineering Controls or higher, falling back to Administrative Controls if engineering measures are not practical.
@@ -30,7 +30,7 @@ The following controls are listed from most preferred (highest effectiveness) to
 }
 
 ## Hazard to Assess
-- Current Status: {{current_status}}
+- Activity: {{activity}}
 - Description: {{hazard_description}}
 - Risk Level: {{risk_level}}
 - Near Miss: {{is_near_miss}}
